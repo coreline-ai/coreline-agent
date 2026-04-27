@@ -126,10 +126,18 @@ describe("/theme slash command", () => {
     expect(result.output).toContain("gruvbox");
   });
 
-  test("TC-12b: /theme with no args returns list", () => {
+  test("TC-12b: /theme with no args returns theme_pick action (interactive picker)", () => {
     const result = handleThemeCommand([]);
     expect(result.handled).toBe(true);
+    expect(result.action).toBe("theme_pick");
+    expect(result.output).toBeUndefined();
+  });
+
+  test("TC-12b2: /theme list returns text list", () => {
+    const result = handleThemeCommand(["list"]);
+    expect(result.handled).toBe(true);
     expect(result.output).toContain("Available themes");
+    expect(result.output).toContain("dracula");
   });
 
   test("TC-12c: /theme <valid-id> returns theme_switch action", () => {

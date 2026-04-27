@@ -9,7 +9,7 @@
 - **런타임**: Bun >= 1.1.0
 - **언어**: TypeScript 5.7 (strict mode)
 - **UI**: Ink 5 (React 18 기반 터미널 UI)
-- **현재 기준선**: 1504 tests / 205 files / 45 dev-plans
+- **현재 기준선**: 1520 tests / 206 files / 46 dev-plans
 
 ## 빌드 & 테스트 명령어
 

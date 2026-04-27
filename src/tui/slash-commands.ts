@@ -77,7 +77,8 @@ export interface SlashCommandResult {
     | "brand_spec"
     | "slop_check"
     | "critique"
-    | "theme_switch";
+    | "theme_switch"
+    | "theme_pick";
   data?: unknown;
 }
 

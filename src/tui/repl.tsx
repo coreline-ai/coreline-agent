@@ -14,7 +14,7 @@ import { agentLoop } from "../agent/loop.js";
 import { buildSystemPrompt } from "../agent/system-prompt.js";
 import { compactMessages } from "../agent/context-manager.js";
 import { buildPlan, executePlan, runAutopilot, type AutopilotRunResult } from "../agent/plan-execute/index.js";
-import { loadPermissions, loadProviders, loadSettings } from "../config/loader.js";
+import { loadPermissions, loadProviders, loadSettings, saveSettings } from "../config/loader.js";
 import { findRole, loadRoles, type Role } from "../config/roles.js";
 import { formatAtFileIssues, prepareUserPrompt, summarizePromptForDisplay } from "../prompt/index.js";
 import { deletePrompt, findPrompt, listPrompts, savePrompt } from "../prompt/library.js";
@@ -94,6 +94,7 @@ import {
 } from "./handlers/critique-handler.js";
 import type { HandlerContext } from "./handlers/types.js";
 import { useTheme } from "./theme/context.js";
+import { ThemePicker } from "./handlers/theme-handler.js";
 
 // ---------------------------------------------------------------------------
 // Message display types
@@ -983,6 +984,7 @@ export function REPL({
   const [turnCount, setTurnCount] = useState(0);
   const [history, setHistory] = useState<string[]>([]);
   const [showProviderSwitcher, setShowProviderSwitcher] = useState(false);
+  const [showThemePicker, setShowThemePicker] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeRole, setActiveRole] = useState<Role | undefined>(initialRole);
   const [explicitSkillIds, setExplicitSkillIds] = useState<BuiltInSkillId[]>(initialExplicitSkillIds);
@@ -2080,7 +2082,16 @@ export function REPL({
         } else if (slashResult.action === "theme_switch") {
           const data = slashResult.data as { themeId: string };
           if (onThemeChange) onThemeChange(data.themeId);
-          commandOutput = `Theme switched to: ${data.themeId}`;
+          try {
+            const current = loadSettings();
+            saveSettings({ ...current, theme: data.themeId as typeof current.theme });
+            commandOutput = `Theme switched to: ${data.themeId} (saved to config.yml)`;
+          } catch {
+            commandOutput = `Theme switched to: ${data.themeId} (config.yml 저장 실패)`;
+          }
+        } else if (slashResult.action === "theme_pick") {
+          setShowThemePicker(true);
+          return;
         }
         if (commandOutput) {
           // Model/provider/session info injection
@@ -2324,6 +2335,23 @@ export function REPL({
         currentProvider={state.provider.name}
         onSelect={handleProviderSwitch}
         onClose={() => setShowProviderSwitcher(false)}
+      />
+    );
+  }
+
+  if (showThemePicker) {
+    return (
+      <ThemePicker
+        onSelect={(id) => {
+          if (onThemeChange) onThemeChange(id);
+          try {
+            const current = loadSettings();
+            saveSettings({ ...current, theme: id as typeof current.theme });
+          } catch { /* ignore */ }
+          setShowThemePicker(false);
+          setDisplayMessages((prev) => [...prev, { role: "assistant", text: `Theme switched to: ${id} (saved to config.yml)` }]);
+        }}
+        onCancel={() => setShowThemePicker(false)}
       />
     );
   }
