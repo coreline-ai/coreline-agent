@@ -1,0 +1,50 @@
+{
+  "name": "coreline-agent",
+  "version": "0.1.0",
+  "description": "Multi-provider coding agent TUI — connect Claude, OpenAI, Gemini, and local LLMs via a single interface",
+  "type": "module",
+  "bin": {
+    "coreline-agent": "src/index.ts",
+    "coreline-agent-proxy": "src/proxy-cli.ts"
+  },
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "dev:proxy": "bun run src/proxy-cli.ts",
+    "build": "bun build src/index.ts --target=bun --outdir=dist && bun build src/proxy-cli.ts --target=bun --outdir=dist",
+    "start:proxy": "bun run src/proxy-cli.ts",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "smoke:provider:ci-safe": "bun test tests/provider-smoke.test.ts",
+    "smoke:provider:manual": "CORELINE_RUN_PROVIDER_SMOKE=1 bun test tests/provider-smoke.test.ts",
+    "smoke:provider:compatible": "CORELINE_RUN_PROVIDER_SMOKE=1 CORELINE_PROVIDER_SMOKE_TARGETS=compatible bun test tests/provider-smoke.test.ts",
+    "smoke:provider:cloud": "CORELINE_RUN_PROVIDER_SMOKE=1 CORELINE_PROVIDER_SMOKE_TARGETS=anthropic,openai,gemini bun test tests/provider-smoke.test.ts",
+    "smoke:provider:nightly-safe": "CORELINE_RUN_PROVIDER_SMOKE=1 CORELINE_PROVIDER_SMOKE_TARGETS=anthropic,openai,gemini bun test tests/provider-smoke.test.ts",
+    "smoke:provider:all": "CORELINE_RUN_PROVIDER_SMOKE=1 CORELINE_PROVIDER_SMOKE_TARGETS=compatible,anthropic,openai,gemini bun test tests/provider-smoke.test.ts",
+    "smoke": "bun test tests/smoke",
+    "smoke:proxy": "bun test tests/smoke/proxy-smoke.test.ts",
+    "smoke:agent": "bun test tests/smoke/single-agent-quality.test.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@google/generative-ai": "^0.21.0",
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "fast-glob": "^3.3.3",
+    "ink": "^5.1.0",
+    "openai": "^4.73.0",
+    "react": "^18.3.1",
+    "yaml": "^2.6.1",
+    "zod": "^3.24.2",
+    "zod-to-json-schema": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.4",
+    "@types/react": "^18.3.18",
+    "react-devtools-core": "^7.0.1",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "bun": ">=1.1.0"
+  },
+  "license": "MIT"
+}
