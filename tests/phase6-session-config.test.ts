@@ -184,11 +184,11 @@ describe("Config Schema - Settings", () => {
   test("parses explicit settings", () => {
     const result = settingsFileSchema.parse({
       defaultProvider: "claude",
-      theme: "dark",
+      theme: "dracula",
       maxTurns: 80,
     });
     expect(result.defaultProvider).toBe("claude");
-    expect(result.theme).toBe("dark");
+    expect(result.theme).toBe("dracula");
     expect(result.maxTurns).toBe(80);
   });
 });
@@ -218,13 +218,13 @@ describe("Config Loader - Settings wiring", () => {
   test("saveSettings round-trips through config.yml", () => {
     saveSettings({
       defaultProvider: "claude",
-      theme: "dark",
+      theme: "gruvbox",
       maxTurns: 77,
     });
 
     const result = loadSettings();
     expect(result.defaultProvider).toBe("claude");
-    expect(result.theme).toBe("dark");
+    expect(result.theme).toBe("gruvbox");
     expect(result.maxTurns).toBe(77);
   });
 

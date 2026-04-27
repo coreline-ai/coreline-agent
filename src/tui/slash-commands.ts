@@ -16,6 +16,7 @@ import { handleSkill } from "./commands/skill.js";
 import { handleSearchPrecise } from "./commands/search-precise.js";
 import { handleSlopCheck } from "./commands/slop-check.js";
 import { handleCritique } from "./commands/critique.js";
+import { handleThemeCommand } from "./commands/theme.js";
 
 export interface SlashCommandResult {
   handled: boolean;
@@ -75,7 +76,8 @@ export interface SlashCommandResult {
     | "memory_health"
     | "brand_spec"
     | "slop_check"
-    | "critique";
+    | "critique"
+    | "theme_switch";
   data?: unknown;
 }
 
@@ -373,6 +375,9 @@ export function handleSlashCommand(input: string): SlashCommandResult {
         output: "Usage: /agent list|status <id>|read <id>|stop <id>|resume <id>",
       };
     }
+
+    case "theme":
+      return handleThemeCommand(args);
 
     case "session":
       return { handled: true, output: "[session info — populated by REPL]" };

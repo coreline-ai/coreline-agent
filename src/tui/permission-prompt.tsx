@@ -5,6 +5,7 @@
 
 import React, { useState } from "react";
 import { Box, Text, useInput } from "ink";
+import { useTheme } from "./theme/context.js";
 
 export interface PermissionPromptProps {
   toolName: string;
@@ -88,6 +89,7 @@ export function getPermissionPromptDetails(
 }
 
 export function PermissionPrompt({ toolName, input, reason, onResolve }: PermissionPromptProps) {
+  const t = useTheme();
   const [resolved, setResolved] = useState(false);
 
   useInput((char, key) => {
@@ -104,9 +106,9 @@ export function PermissionPrompt({ toolName, input, reason, onResolve }: Permiss
   const details = getPermissionPromptDetails(toolName, input, reason);
 
   return (
-    <Box flexDirection="column" borderStyle="round" borderColor="yellow" paddingX={2} paddingY={1}>
+    <Box flexDirection="column" borderStyle="round" borderColor={t.warning} paddingX={2} paddingY={1}>
       <Box gap={1}>
-        <Text color="yellow" bold>⚠ Permission Required</Text>
+        <Text color={t.warning} bold>⚠ Permission Required</Text>
       </Box>
       <Box marginTop={1} flexDirection="column">
         <Box gap={1}>
@@ -128,7 +130,7 @@ export function PermissionPrompt({ toolName, input, reason, onResolve }: Permiss
         {details.policyLabel && (
           <Box gap={1}>
             <Text dimColor>Policy:</Text>
-            <Text color="yellow">{details.policyLabel}</Text>
+            <Text color={t.warning}>{details.policyLabel}</Text>
           </Box>
         )}
         {details.targetLabel && (
@@ -149,9 +151,9 @@ export function PermissionPrompt({ toolName, input, reason, onResolve }: Permiss
           <Text dimColor>(resolved)</Text>
         ) : (
           <Text>
-            <Text color="green" bold>[Y]</Text><Text>es</Text>
+            <Text color={t.success} bold>[Y]</Text><Text>es</Text>
             <Text> / </Text>
-            <Text color="red" bold>[N]</Text><Text>o</Text>
+            <Text color={t.error} bold>[N]</Text><Text>o</Text>
             <Text dimColor> (Enter=Yes, Esc=No)</Text>
           </Text>
         )}

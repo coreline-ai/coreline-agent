@@ -4,6 +4,7 @@
 
 import React from "react";
 import { Box, Text } from "ink";
+import { useTheme } from "./theme/context.js";
 import { formatAgentStatusLabel, type AgentStatusSnapshot } from "../agent/status.js";
 import { formatCostStatus, type CostSnapshot } from "../agent/cost-tracker.js";
 import {
@@ -117,6 +118,7 @@ export function StatusBar({
   quota,
   rateLimit,
 }: StatusBarProps) {
+  const t = useTheme();
   const totalTokens = inputTokens + outputTokens;
   const tokenStr = totalTokens > 0 ? `${(totalTokens / 1000).toFixed(1)}k` : "0";
   const proxyLabel = formatProxyStatusLabel(proxyStatus);
@@ -152,40 +154,40 @@ export function StatusBar({
   return (
     <Box
       borderStyle="single"
-      borderColor="gray"
+      borderColor={t.border}
       paddingX={1}
       flexDirection="row"
       justifyContent="space-between"
       width="100%"
     >
       <Box gap={1}>
-        <Text color="cyan" bold>{provider}</Text>
+        <Text color={t.primary} bold>{provider}</Text>
         <Text dimColor>|</Text>
-        <Text color="yellow">{displayModel}</Text>
+        <Text color={t.warning}>{displayModel}</Text>
         {reasoningLabel && (
           <>
             <Text dimColor>|</Text>
-            <Text color="yellow">{reasoningLabel}</Text>
+            <Text color={t.warning}>{reasoningLabel}</Text>
           </>
         )}
       </Box>
 
       <Box gap={1}>
-        {isLoading && <Text color="magenta">●</Text>}
+        {isLoading && <Text color={t.secondary}>●</Text>}
         <Text dimColor>tokens:</Text>
-        <Text color="green">{tokenStr}</Text>
+        <Text color={t.success}>{tokenStr}</Text>
         {costLabel && (
           <>
             <Text dimColor>|</Text>
             <Text dimColor>cost:</Text>
-            <Text color={cost?.overBudget ? "red" : "green"}>{costLabel}</Text>
+            <Text color={cost?.overBudget ? t.error : t.success}>{costLabel}</Text>
           </>
         )}
         {quotaDisplay && (
           <>
             <Text dimColor>|</Text>
             <Text dimColor>{quotaDisplay.label}</Text>
-            <Text color="cyan">{quotaDisplay.value}</Text>
+            <Text color={t.primary}>{quotaDisplay.value}</Text>
           </>
         )}
         <Text dimColor>|</Text>
@@ -193,19 +195,17 @@ export function StatusBar({
         <Text>{String(turnCount)}</Text>
         <Text dimColor>|</Text>
         <Text dimColor>mode:</Text>
-        <Text color={permissionMode === "acceptAll" ? "red" : "white"}>
+        <Text color={permissionMode === "acceptAll" ? t.error : t.response}>
           {permissionMode}
         </Text>
         <Text dimColor>|</Text>
         <Text dimColor>theme:</Text>
-        <Text color={theme === "dark" ? "magenta" : theme === "light" ? "yellow" : "white"}>
-          {theme}
-        </Text>
+        <Text color={t.muted}>{theme}</Text>
         {agentStatusLabel && (
           <>
             <Text dimColor>|</Text>
             <Text dimColor>agent:</Text>
-            <Text color={agentStatus?.status === "blocked" || agentStatus?.status === "failed" ? "red" : agentStatus?.status === "needs_user" ? "yellow" : agentStatus?.status === "running" || agentStatus?.status === "planning" ? "magenta" : "green"}>
+            <Text color={agentStatus?.status === "blocked" || agentStatus?.status === "failed" ? t.error : agentStatus?.status === "needs_user" ? t.warning : agentStatus?.status === "running" || agentStatus?.status === "planning" ? t.secondary : t.success}>
               {agentStatusLabel}
             </Text>
           </>
@@ -214,14 +214,14 @@ export function StatusBar({
           <>
             <Text dimColor>|</Text>
             <Text dimColor>tweaks:</Text>
-            <Text color="yellow">{runtimeTweaks.replace(/^runtime tweaks:\s*/, "")}</Text>
+            <Text color={t.warning}>{runtimeTweaks.replace(/^runtime tweaks:\s*/, "")}</Text>
           </>
         )}
         {proxyLabel && (
           <>
             <Text dimColor>|</Text>
             <Text dimColor>proxy:</Text>
-            <Text color={proxyStatus?.isListening ? "cyan" : "red"}>
+            <Text color={proxyStatus?.isListening ? t.primary : t.error}>
               {proxyLabel}
             </Text>
           </>
@@ -230,7 +230,7 @@ export function StatusBar({
           <>
             <Text dimColor>|</Text>
             <Text dimColor>mcp:</Text>
-            <Text color={mcpStatus === "invalid" ? "red" : mcpStatus === "none" || mcpStatus === "disabled" ? "yellow" : "cyan"}>
+            <Text color={mcpStatus === "invalid" ? t.error : mcpStatus === "none" || mcpStatus === "disabled" ? t.warning : t.primary}>
               {mcpStatus}
             </Text>
           </>

@@ -4,6 +4,8 @@
 
 import React from "react";
 import { Box, Text } from "ink";
+import { useTheme } from "./theme/context.js";
+import { themeRuntime } from "./theme/runtime.js";
 
 export interface StreamingOutputProps {
   text: string;
@@ -138,8 +140,9 @@ function renderInlineSegment(segment: MarkdownInlineSegment, key: string): React
   }
 
   if (segment.type === "code") {
+    const primary = themeRuntime.getStyles().primary;
     return (
-      <Text key={key} color="cyan">
+      <Text key={key} color={primary}>
         {segment.text}
       </Text>
     );
@@ -149,22 +152,23 @@ function renderInlineSegment(segment: MarkdownInlineSegment, key: string): React
 }
 
 export function renderMinimalMarkdown(text: string, isStreaming = false): React.ReactNode[] {
+  const styles = themeRuntime.getStyles();
   const blocks = parseMinimalMarkdown(text);
   const nodes = blocks.map((block, index) => {
     if (block.type === "text") {
       return (
         <Text key={index}>
           {block.segments.map((segment, i) => renderInlineSegment(segment, `${index}-${i}`))}
-          {isStreaming && index === blocks.length - 1 ? <Text color="gray">▊</Text> : null}
+          {isStreaming && index === blocks.length - 1 ? <Text color={styles.muted}>▊</Text> : null}
         </Text>
       );
     }
 
     if (block.type === "code") {
       return (
-        <Text key={index} color="cyan">
+        <Text key={index} color={styles.primary}>
           {block.text}
-          {isStreaming && index === blocks.length - 1 ? <Text color="gray">▊</Text> : null}
+          {isStreaming && index === blocks.length - 1 ? <Text color={styles.muted}>▊</Text> : null}
         </Text>
       );
     }
@@ -182,13 +186,14 @@ export function renderMinimalMarkdown(text: string, isStreaming = false): React.
   });
 
   if (isStreaming && nodes.length === 0) {
-    return [<Text key="cursor" color="gray">▊</Text>];
+    return [<Text key="cursor" color={styles.muted}>▊</Text>];
   }
 
   return nodes;
 }
 
 export function StreamingOutput({ text, isStreaming }: StreamingOutputProps) {
+  const t = useTheme();
   if (!text && !isStreaming) return null;
 
   const rendered = renderMinimalMarkdown(text, isStreaming);
@@ -198,18 +203,18 @@ export function StreamingOutput({ text, isStreaming }: StreamingOutputProps) {
       flexDirection="column"
       paddingX={1}
       borderStyle="single"
-      borderColor="gray"
+      borderColor={t.border}
       marginY={0}
       >
       <Box gap={1}>
-        <Text color="green" bold>Streaming</Text>
-        {isStreaming && <Text color="yellow">●</Text>}
+        <Text color={t.success} bold>Streaming</Text>
+        {isStreaming && <Text color={t.warning}>●</Text>}
       </Box>
       <Box flexDirection="column">
         {rendered.length > 0 ? rendered : (
           <Text dimColor>
             {isStreaming ? "Generating…" : ""}
-            {isStreaming ? <Text color="gray">▊</Text> : null}
+            {isStreaming ? <Text color={t.muted}>▊</Text> : null}
           </Text>
         )}
       </Box>

@@ -4,6 +4,7 @@
 
 import React, { useState, useCallback, useEffect } from "react";
 import { Box, Text, useInput } from "ink";
+import { useTheme } from "./theme/context.js";
 
 export interface PromptInputProps {
   onSubmit: (text: string) => void;
@@ -97,11 +98,12 @@ export function PromptInput({
     { isActive: !isDisabled },
   );
 
+  const t = useTheme();
   const displayText = formatPromptDisplayText(value, placeholder);
 
   return (
     <Box paddingX={1}>
-      <Text color="green" bold>{"❯ "}</Text>
+      <Text color={t.user} bold>{"❯ "}</Text>
       {value ? <Text>{displayText}</Text> : <Text dimColor>{displayText}</Text>}
     </Box>
   );

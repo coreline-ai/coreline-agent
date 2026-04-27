@@ -2,9 +2,11 @@
  * TUI App root — Ink 5 render entry.
  */
 
-import React from "react";
+import React, { useState } from "react";
 import { render } from "ink";
 import { REPL } from "./repl.js";
+import { ThemeProvider } from "./theme/context.js";
+import { loadSettings } from "../config/loader.js";
 import type { AppState } from "../agent/context.js";
 import type { ProviderRegistry } from "../providers/types.js";
 import type { SessionManager } from "../session/history.js";
@@ -26,8 +28,12 @@ export interface AppProps {
   activeRole?: Role;
   initialExplicitSkillIds?: BuiltInSkillId[];
   initialAutoSkillsEnabled?: boolean;
+  /** Active theme id — defaults to settings.theme when omitted. */
+  themeId?: string;
+  onThemeChange?: (themeId: string) => void;
 }
 
+/** Stateless App — wraps REPL in ThemeProvider. Testable as a plain function call. */
 export function App({
   state,
   providerRegistry,
@@ -41,27 +47,38 @@ export function App({
   activeRole,
   initialExplicitSkillIds,
   initialAutoSkillsEnabled,
+  themeId = "default",
+  onThemeChange,
 }: AppProps) {
   return (
-    <REPL
-      state={state}
-      providerRegistry={providerRegistry}
-      systemPrompt={systemPrompt}
-      maxTurns={maxTurns}
-      session={session}
-      showReasoning={showReasoning}
-      mcpStatus={mcpStatus}
-      proxyStatus={proxyStatus}
-      statusTracker={statusTracker}
-      initialRole={activeRole}
-      initialExplicitSkillIds={initialExplicitSkillIds}
-      initialAutoSkillsEnabled={initialAutoSkillsEnabled}
-    />
+    <ThemeProvider themeId={themeId}>
+      <REPL
+        state={state}
+        providerRegistry={providerRegistry}
+        systemPrompt={systemPrompt}
+        maxTurns={maxTurns}
+        session={session}
+        showReasoning={showReasoning}
+        mcpStatus={mcpStatus}
+        proxyStatus={proxyStatus}
+        statusTracker={statusTracker}
+        initialRole={activeRole}
+        initialExplicitSkillIds={initialExplicitSkillIds}
+        initialAutoSkillsEnabled={initialAutoSkillsEnabled}
+        onThemeChange={onThemeChange}
+      />
+    </ThemeProvider>
   );
 }
 
+/** Stateful launcher — holds theme state so /theme switches trigger re-renders. */
+function ThemedApp(props: Omit<AppProps, "themeId" | "onThemeChange">) {
+  const [themeId, setThemeId] = useState<string>(() => loadSettings().theme);
+  return <App {...props} themeId={themeId} onThemeChange={setThemeId} />;
+}
+
 export function launchTUI(props: AppProps): void {
-  const instance = render(<App {...props} />);
+  const instance = render(<ThemedApp {...props} />);
 
   // Graceful shutdown
   const cleanup = () => {

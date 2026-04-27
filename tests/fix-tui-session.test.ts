@@ -5,6 +5,7 @@
 import { describe, expect, test } from "bun:test";
 import type React from "react";
 import { App } from "../src/tui/app.js";
+import { ThemeProvider } from "../src/tui/theme/context.js";
 import { REPL, buildDisplayMessagesFromMessages } from "../src/tui/repl.js";
 import { createAppState } from "../src/agent/context.js";
 import type { ChatMessage } from "../src/agent/types.js";
@@ -51,7 +52,7 @@ describe("TUI session wiring", () => {
     const session = createMockSession();
     const providerRegistry = createMockProviderRegistry(provider);
 
-    const element = App({
+    const wrapper = App({
       state,
       providerRegistry,
       systemPrompt: "system prompt",
@@ -60,6 +61,9 @@ describe("TUI session wiring", () => {
       showReasoning: false,
     }) as React.ReactElement;
 
+    // App wraps REPL in ThemeProvider
+    expect(wrapper.type).toBe(ThemeProvider);
+    const element = wrapper.props.children as React.ReactElement;
     expect(element.type).toBe(REPL);
     expect(element.props.state).toBe(state);
     expect(element.props.providerRegistry).toBe(providerRegistry);

@@ -4,6 +4,7 @@
 
 import React from "react";
 import { Box, Text } from "ink";
+import { useTheme } from "./theme/context.js";
 
 export interface ReasoningOutputProps {
   text: string;
@@ -14,6 +15,7 @@ export interface ReasoningOutputProps {
 const MAX_LINES = 10; // limit display height during streaming
 
 export function ReasoningOutput({ text, isActive, show }: ReasoningOutputProps) {
+  const t = useTheme();
   if (!show || !text) return null;
 
   const lines = text.split("\n");
@@ -25,12 +27,12 @@ export function ReasoningOutput({ text, isActive, show }: ReasoningOutputProps) 
       flexDirection="column"
       paddingX={1}
       borderStyle="single"
-      borderColor="gray"
+      borderColor={t.border}
       marginY={0}
     >
       <Box>
-        <Text color="gray" dimColor>{"💭 Reasoning"}</Text>
-        {isActive && <Text color="yellow"> ●</Text>}
+        <Text color={t.muted} dimColor>{"💭 Reasoning"}</Text>
+        {isActive && <Text color={t.warning}> ●</Text>}
       </Box>
       <Box flexDirection="column">
         {truncated && <Text dimColor italic>... ({lines.length - MAX_LINES} more lines above)</Text>}

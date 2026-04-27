@@ -93,6 +93,7 @@ import {
   type CritiqueCommandData,
 } from "./handlers/critique-handler.js";
 import type { HandlerContext } from "./handlers/types.js";
+import { useTheme } from "./theme/context.js";
 
 // ---------------------------------------------------------------------------
 // Message display types
@@ -651,17 +652,18 @@ export function formatPlanRunLines(record: PlanRunRecord): string[] {
 }
 
 function PlanRunPanel({ run }: { run: PlanRunRecord }) {
+  const t = useTheme();
   const lines = formatPlanRunLines(run);
   const borderColor = run.status === "failed"
-    ? "red"
+    ? t.error
     : run.status === "running" || run.status === "blocked" || run.status === "needs_user"
-      ? "yellow"
-      : "gray";
+      ? t.warning
+      : t.border;
 
   return (
     <Box flexDirection="column" paddingX={1} marginBottom={1} borderStyle="single" borderColor={borderColor}>
       <Box marginBottom={1}>
-        <Text color="blue" bold>{getPlanRunHeading(run)}</Text>
+        <Text color={t.info} bold>{getPlanRunHeading(run)}</Text>
       </Box>
       {lines.map((line, index) => (
         <Text key={index}>{line}</Text>
@@ -919,6 +921,7 @@ export interface REPLProps {
   initialRole?: Role;
   initialExplicitSkillIds?: BuiltInSkillId[];
   initialAutoSkillsEnabled?: boolean;
+  onThemeChange?: (themeId: string) => void;
 }
 
 function reloadProviderRegistry(
@@ -945,8 +948,10 @@ export function REPL({
   initialRole,
   initialExplicitSkillIds = [],
   initialAutoSkillsEnabled = true,
+  onThemeChange,
 }: REPLProps) {
   const { exit } = useApp();
+  const t = useTheme();
   const settings = React.useMemo(() => loadSettings(), []);
   const [runtimeTweaks] = useState(() => new RuntimeTweaks({
     defaults: {
@@ -2072,6 +2077,10 @@ export function REPL({
           } catch (err) {
             commandOutput = `Error: ${(err as Error).message}`;
           }
+        } else if (slashResult.action === "theme_switch") {
+          const data = slashResult.data as { themeId: string };
+          if (onThemeChange) onThemeChange(data.themeId);
+          commandOutput = `Theme switched to: ${data.themeId}`;
         }
         if (commandOutput) {
           // Model/provider/session info injection
@@ -2347,17 +2356,17 @@ export function REPL({
       {/* Header */}
       <Box paddingX={1} marginBottom={1} flexDirection="column">
         <Box>
-          <Text bold color="cyan">coreline-agent</Text>
+          <Text bold color={t.primary}>coreline-agent</Text>
           <Text dimColor> — type a message to start. Ctrl+C to exit.</Text>
         </Box>
         {runtimeProviderRegistry && (
           <Box>
             <Text dimColor>Provider: </Text>
-            <Text color="cyan" bold>{currentProvider.name}</Text>
+            <Text color={t.primary} bold>{currentProvider.name}</Text>
             {activeRole && (
               <>
                 <Text dimColor>  •  Role: </Text>
-                <Text color="yellow">{activeRole.id}</Text>
+                <Text color={t.warning}>{activeRole.id}</Text>
               </>
             )}
             <Text dimColor>  •  </Text>
@@ -2371,12 +2380,12 @@ export function REPL({
         <Box key={i} flexDirection="column" paddingX={1} marginBottom={1}>
           {msg.role === "user" ? (
             <Box>
-              <Text color="green" bold>You: </Text>
+              <Text color={t.user} bold>You: </Text>
               <Text>{msg.text}</Text>
             </Box>
           ) : (
             <Box flexDirection="column">
-              <Text color="magenta" bold>Agent: </Text>
+              <Text color={t.secondary} bold>Agent: </Text>
               {msg.toolCalls?.map((tc) => (
                 <ToolResult key={tc.toolUseId} toolCall={tc} />
               ))}
@@ -2387,9 +2396,9 @@ export function REPL({
       ))}
 
       {latestGoalRun && (
-        <Box flexDirection="column" paddingX={1} marginBottom={1} borderStyle="single" borderColor="yellow">
+        <Box flexDirection="column" paddingX={1} marginBottom={1} borderStyle="single" borderColor={t.warning}>
           <Box marginBottom={1}>
-            <Text color="yellow" bold>Resumable Goal</Text>
+            <Text color={t.warning} bold>Resumable Goal</Text>
           </Box>
           {formatGoalResumeLines(latestGoalRun).map((line, index) => (
             <Text key={index}>{line}</Text>
@@ -2408,7 +2417,7 @@ export function REPL({
       {/* Active streaming / tool calls / reasoning */}
       {isLoading && (
         <Box flexDirection="column" paddingX={1}>
-          <Text color="magenta" bold>Agent: </Text>
+          <Text color={t.secondary} bold>Agent: </Text>
           <ReasoningOutput text={reasoningText} isActive={true} show={runtimeValues.showReasoning} />
           {activeToolCalls.map((tc) => (
             <ToolResult key={tc.toolUseId} toolCall={tc} />
@@ -2420,7 +2429,7 @@ export function REPL({
       {/* Error display */}
       {error && (
         <Box paddingX={1}>
-          <Text color="red">Error: {error}</Text>
+          <Text color={t.error}>Error: {error}</Text>
         </Box>
       )}
 

@@ -95,7 +95,19 @@ export type RolesFile = z.infer<typeof rolesFileSchema>;
 // App Settings Schema
 // ---------------------------------------------------------------------------
 
-export const settingsThemeSchema = z.enum(["default", "dark", "light"]);
+export const settingsThemeSchema = z.enum([
+  "default",
+  "dracula",
+  "catppuccin-mocha",
+  "catppuccin-latte",
+  "gruvbox",
+  "solarized-dark",
+  "vitesse-dark",
+  "github-dark",
+  "atom-one-dark",
+  "tomorrow-night",
+]);
+export type SettingsTheme = z.infer<typeof settingsThemeSchema>;
 export const modelPricingOverrideSchema = z.object({
   inputPerMillion: z.number().nonnegative().optional(),
   outputPerMillion: z.number().nonnegative().optional(),

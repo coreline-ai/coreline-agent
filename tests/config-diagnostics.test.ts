@@ -103,7 +103,7 @@ describe("config diagnostics", () => {
       paths.configYml,
       [
         "defaultProvider: local",
-        "theme: dark",
+        "theme: solarized-dark",
         "maxTurns: 25",
       ].join("\n"),
       "utf-8",
@@ -140,7 +140,7 @@ describe("config diagnostics", () => {
     expect(settings.sourcePath).toBe(paths.configYml);
     expect(settings.config).toMatchObject({
       defaultProvider: "local",
-      theme: "dark",
+      theme: "solarized-dark",
       maxTurns: 25,
     });
 

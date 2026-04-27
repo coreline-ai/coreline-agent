@@ -4,6 +4,7 @@
 
 import React from "react";
 import { Box, Text } from "ink";
+import { useTheme } from "./theme/context.js";
 import { renderMinimalMarkdown } from "./streaming-output.js";
 
 export interface ToolCallDisplay {
@@ -160,8 +161,9 @@ export function getToolStatusLabel(toolCall: ToolCallDisplay): string {
 }
 
 export function ToolResult({ toolCall, verbose }: ToolResultProps) {
+  const t = useTheme();
   const icon = toolCall.status === "running" ? "⟳" : toolCall.isError ? "✗" : "✓";
-  const iconColor = toolCall.status === "running" ? "yellow" : toolCall.isError ? "red" : "green";
+  const iconColor = toolCall.status === "running" ? t.warning : toolCall.isError ? t.error : t.success;
   const statusLabel = getToolStatusLabel(toolCall);
   const summary = summarizeInput(toolCall.toolName, toolCall.input);
   const detailLine = getToolDetailLine(toolCall);
@@ -174,11 +176,11 @@ export function ToolResult({ toolCall, verbose }: ToolResultProps) {
       paddingY={0}
       marginY={0}
       borderStyle="single"
-      borderColor={toolCall.isError ? "red" : toolCall.status === "running" ? "yellow" : "gray"}
+      borderColor={toolCall.isError ? t.error : toolCall.status === "running" ? t.warning : t.border}
     >
       <Box gap={1} flexWrap="wrap">
         <Text color={iconColor}>{icon}</Text>
-        <Text color="cyan" bold>{toolCall.toolName}</Text>
+        <Text color={t.tool} bold>{toolCall.toolName}</Text>
         <Text dimColor>{statusLabel}</Text>
         <Text dimColor>|</Text>
         <Text dimColor>{summary}</Text>
